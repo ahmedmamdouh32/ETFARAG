@@ -28,3 +28,8 @@ export async function changePassword(currentPassword, newPassword, confirmNewPas
   })
   return response.data
 }
+
+export async function loginWithGoogle(idToken) {
+  const response = await api.post('/api/auth/google', { idToken })
+  return response.data
+}

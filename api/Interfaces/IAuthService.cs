@@ -8,4 +8,5 @@ public interface IAuthService
     Task<AuthResponse> LoginAsync(LoginRequest request);
     Task<UserProfileResponse> UpdateProfileAsync(string userId, UpdateProfileRequest request);
     Task ChangePasswordAsync(string userId, ChangePasswordRequest request);
+    Task<AuthResponse> GoogleLoginAsync(GoogleAuthRequest request);
 }

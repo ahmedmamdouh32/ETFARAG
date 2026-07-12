@@ -1,6 +1,7 @@
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { useMovieDetails } from '@/hooks/useMovieDetails'
 import { useFavorites } from '@/context/FavoritesContext'
 import { useAuth } from '@/context/AuthContext'
@@ -28,6 +29,7 @@ function DetailsSkeleton() {
 }
 
 export default function Details() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
@@ -46,7 +48,7 @@ export default function Details() {
     return (
       <>
         <Helmet>
-          <title>Loading... | ETFARAG</title>
+          <title>{t('common.loading')} | ETFARAG</title>
         </Helmet>
         <DetailsSkeleton />
       </>
@@ -57,7 +59,7 @@ export default function Details() {
     return (
       <>
         <Helmet>
-          <title>Error | ETFARAG</title>
+          <title>{t('common.error')} | ETFARAG</title>
         </Helmet>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <ErrorState message={error} onRetry={retry} />
@@ -67,7 +69,7 @@ export default function Details() {
               onClick={() => navigate('/')}
               className="text-sm text-blue-600 dark:text-blue-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
             >
-              Back to Home
+              {t('details.backHome')}
             </button>
           </div>
         </div>
@@ -186,19 +188,17 @@ export default function Details() {
                   : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
               aria-label={
-                isFavorite(movie.id)
-                  ? 'Remove from favorites'
-                  : 'Add to favorites'
+                isFavorite(movie.id) ? t('details.removeFavorite') : t('details.addFavorite')
               }
             >
               <span>{isFavorite(movie.id) ? '\u2665' : '\u2661'}</span>
-              {isFavorite(movie.id) ? 'Remove from Favorites' : 'Add to Favorites'}
+              {isFavorite(movie.id) ? t('details.removeFromFavorites') : t('details.addToFavorites')}
             </button>
 
             {movie.overview && (
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  Overview
+                  {t('details.overview')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
                   {movie.overview}
@@ -213,26 +213,26 @@ export default function Details() {
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {movie.vote_average?.toFixed(1) || 'N/A'}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Vote Average</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('details.voteAverage')}</p>
           </div>
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center">
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {movie.vote_count?.toLocaleString() || 'N/A'}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Vote Count</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('details.voteCount')}</p>
           </div>
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center">
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {movie.popularity?.toFixed(1) || 'N/A'}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Popularity</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('details.popularity')}</p>
           </div>
         </div>
 
         {trailerUrl ? (
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-              Trailer
+              {t('details.trailer')}
             </h2>
             <div className="aspect-video rounded-lg overflow-hidden">
               <iframe
@@ -245,14 +245,14 @@ export default function Details() {
           </div>
         ) : (
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-8 text-center">
-            <p className="text-gray-500 dark:text-gray-400">No trailer available.</p>
+            <p className="text-gray-500 dark:text-gray-400">{t('details.noTrailer')}</p>
           </div>
         )}
 
         {cast.length > 0 && (
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-              Cast
+              {t('details.cast')}
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {cast.map((person) => (
@@ -289,7 +289,7 @@ export default function Details() {
         {directors.length > 0 && (
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-              Crew
+              {t('details.crew')}
             </h2>
             <div className="flex flex-wrap gap-3">
               {directors.map((person) => (
@@ -324,7 +324,7 @@ export default function Details() {
         {similarMovies.length > 0 && (
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-              Similar Movies
+              {t('details.similar')}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {similarMovies.slice(0, 10).map((item) => (
@@ -337,7 +337,7 @@ export default function Details() {
         {recommendations.length > 0 && (
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-              Recommendations
+              {t('details.recommendations')}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {recommendations.slice(0, 10).map((rec) => (

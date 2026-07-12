@@ -2,7 +2,14 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import api from '@/api/axios'
-import { loginUser, registerUser, updateProfile as updateProfileApi, changePassword as changePasswordApi } from '@/services/authService'
+import i18n from '@/i18n'
+import {
+  loginUser,
+  registerUser,
+  updateProfile as updateProfileApi,
+  changePassword as changePasswordApi,
+  loginWithGoogle as loginWithGoogleApi,
+} from '@/services/authService'
 
 const AuthContext = createContext(null)
 
@@ -13,6 +20,18 @@ function isTokenExpired(token) {
   } catch {
     return true
   }
+}
+
+function saveSession(data, setToken, setUser) {
+  const userData = { email: data.email, fullName: data.fullName }
+
+  localStorage.setItem('token', data.token)
+  localStorage.setItem('user', JSON.stringify(userData))
+
+  setToken(data.token)
+  setUser(userData)
+
+  return userData
 }
 
 export function AuthProvider({ children }) {
@@ -35,7 +54,7 @@ export function AuthProvider({ children }) {
     if (storedToken && storedUser) {
       if (isTokenExpired(storedToken)) {
         clearSession()
-        toast.error('Session expired. Please log in again.')
+        toast.error(i18n.t('toasts.sessionExpired'))
       } else {
         setToken(storedToken)
         setUser(JSON.parse(storedUser))
@@ -47,7 +66,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     api.onUnauthorized = (message) => {
       clearSession()
-      toast.error(message || 'Session expired. Please log in again.')
+      toast.error(message || i18n.t('toasts.sessionExpired'))
       navigate('/login', { replace: true })
     }
 
@@ -58,27 +77,27 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (email, password) => {
     const data = await loginUser(email, password)
-    const userData = { email: data.email, fullName: data.fullName }
+    saveSession(data, setToken, setUser)
+    toast.success(i18n.t('toasts.loginSuccess'))
+    return data
+  }, [])
 
-    localStorage.setItem('token', data.token)
-    localStorage.setItem('user', JSON.stringify(userData))
-
-    setToken(data.token)
-    setUser(userData)
-
-    toast.success('Login successful!')
+  const loginWithGoogle = useCallback(async (idToken) => {
+    const data = await loginWithGoogleApi(idToken)
+    saveSession(data, setToken, setUser)
+    toast.success(i18n.t('toasts.loginSuccess'))
     return data
   }, [])
 
   const register = useCallback(async (fullName, email, password, confirmPassword) => {
     const data = await registerUser(fullName, email, password, confirmPassword)
-    toast.success('Registration successful! Please log in.')
+    toast.success(i18n.t('toasts.registerSuccess'))
     return data
   }, [])
 
   const logout = useCallback(() => {
     clearSession()
-    toast.success('Logged out successfully.')
+    toast.success(i18n.t('toasts.logoutSuccess'))
   }, [clearSession])
 
   const updateProfile = useCallback(async (fullName) => {
@@ -88,13 +107,13 @@ export function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(userData))
     setUser(userData)
 
-    toast.success('Profile updated successfully.')
+    toast.success(i18n.t('toasts.profileUpdated'))
     return data
   }, [])
 
   const changePassword = useCallback(async (currentPassword, newPassword, confirmNewPassword) => {
     const data = await changePasswordApi(currentPassword, newPassword, confirmNewPassword)
-    toast.success(data.message || 'Password changed successfully.')
+    toast.success(data.message || i18n.t('toasts.passwordChanged'))
     return data
   }, [])
 
@@ -106,6 +125,7 @@ export function AuthProvider({ children }) {
         isAuthenticated: !!token,
         loading,
         login,
+        loginWithGoogle,
         register,
         logout,
         updateProfile,

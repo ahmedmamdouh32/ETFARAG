@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { useFavorites } from '@/context/FavoritesContext'
 import { getResourceDetails } from '@/api/resourceApi'
 import MovieGrid from '@/components/movies/MovieGrid'
@@ -8,6 +9,7 @@ import LoadingSkeleton from '@/components/movies/LoadingSkeleton'
 import ErrorState from '@/components/movies/ErrorState'
 
 export default function Favorites() {
+  const { t } = useTranslation()
   const { favoriteIds } = useFavorites()
   const [movies, setMovies] = useState([])
   const [loading, setLoading] = useState(true)
@@ -57,12 +59,10 @@ export default function Favorites() {
   return (
     <>
       <Helmet>
-        <title>Favorites | ETFARAG</title>
+        <title>{t('favorites.title')} | ETFARAG</title>
       </Helmet>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Favorites
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('favorites.title')}</h1>
 
         {loading && <LoadingSkeleton count={6} />}
 
@@ -90,16 +90,16 @@ export default function Favorites() {
               />
             </svg>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-              No favorites yet
+              {t('favorites.emptyTitle')}
             </h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Browse movies and click the heart icon to save them here.
+              {t('favorites.emptyText')}
             </p>
             <Link
               to="/"
               className="mt-4 px-4 py-2 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
             >
-              Browse Movies
+              {t('favorites.browse')}
             </Link>
           </div>
         )}

@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate, createSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '@/context/ThemeContext'
 import { useAuth } from '@/context/AuthContext'
 import { useFavorites } from '@/context/FavoritesContext'
 
 export default function Navbar() {
+  const { t, i18n } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const { isAuthenticated, user, logout } = useAuth()
@@ -12,18 +14,18 @@ export default function Navbar() {
   const navigate = useNavigate()
 
   const publicLinks = [
-    { to: '/', label: 'Home' },
-    { to: '/search', label: 'Search' },
+    { to: '/', label: t('nav.home') },
+    { to: '/search', label: t('nav.search') },
   ]
 
   const authLinks = isAuthenticated
     ? [
-        { to: '/favorites', label: `Favorites (${favoriteCount})` },
-        { to: '/profile', label: 'Profile' },
+        { to: '/favorites', label: `${t('nav.favorites')} (${favoriteCount})` },
+        { to: '/profile', label: t('nav.profile') },
       ]
     : [
-        { to: '/login', label: 'Login' },
-        { to: '/register', label: 'Register' },
+        { to: '/login', label: t('nav.login') },
+        { to: '/register', label: t('nav.register') },
       ]
 
   const navLinks = [...publicLinks, ...authLinks]
@@ -34,6 +36,10 @@ export default function Navbar() {
     setIsOpen(false)
   }
 
+  function handleLanguageChange(e) {
+    i18n.changeLanguage(e.target.value)
+  }
+
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -42,7 +48,7 @@ export default function Navbar() {
             <img src="/logo.webp" alt="" className="h-10 w-auto" />
           </Link>
 
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center gap-4">
             {navLinks.map((link) => (
               <NavLink
                 key={link.to}
@@ -74,29 +80,36 @@ export default function Navbar() {
               <input
                 name="navbar-search"
                 type="text"
-                placeholder="Search..."
+                placeholder={t('nav.searchPlaceholder')}
                 className="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-36 lg:w-48"
-                aria-label="Search movies"
+                aria-label={t('nav.searchPlaceholder')}
               />
             </form>
+            <select
+              value={i18n.language}
+              onChange={handleLanguageChange}
+              className="px-2 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label={t('nav.language')}
+            >
+              <option value="en">EN</option>
+              <option value="ar">AR</option>
+            </select>
             {isAuthenticated && (
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  {user?.fullName}
-                </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700 dark:text-gray-300">{user?.fullName}</span>
                 <button
                   onClick={handleLogout}
                   className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                  aria-label="Log out"
+                  aria-label={t('nav.logout')}
                 >
-                  Logout
+                  {t('nav.logout')}
                 </button>
               </div>
             )}
             <button
               onClick={toggleTheme}
               className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Toggle theme"
+              aria-label={t('nav.toggleTheme')}
             >
               {theme === 'light' ? (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -113,7 +126,7 @@ export default function Navbar() {
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-            aria-label="Toggle menu"
+            aria-label={t('nav.toggleMenu')}
             aria-expanded={isOpen}
             aria-controls="mobile-menu"
           >
@@ -165,31 +178,40 @@ export default function Navbar() {
               <input
                 name="mobile-search"
                 type="text"
-                placeholder="Search..."
+                placeholder={t('nav.searchPlaceholder')}
                 className="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label="Search movies"
+                aria-label={t('nav.searchPlaceholder')}
               />
             </form>
+            <div className="px-3 py-2">
+              <select
+                value={i18n.language}
+                onChange={handleLanguageChange}
+                className="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={t('nav.language')}
+              >
+                <option value="en">EN</option>
+                <option value="ar">AR</option>
+              </select>
+            </div>
             {isAuthenticated && (
-              <div className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
-                {user?.fullName}
-              </div>
+              <div className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300">{user?.fullName}</div>
             )}
             {isAuthenticated && (
               <button
                 onClick={handleLogout}
                 className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
-                aria-label="Log out"
+                aria-label={t('nav.logout')}
               >
-                Logout
+                {t('nav.logout')}
               </button>
             )}
             <button
               onClick={toggleTheme}
               className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
-              aria-label="Toggle theme"
+              aria-label={t('nav.toggleTheme')}
             >
-              {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+              {theme === 'light' ? t('nav.darkMode') : t('nav.lightMode')}
             </button>
           </div>
         </div>

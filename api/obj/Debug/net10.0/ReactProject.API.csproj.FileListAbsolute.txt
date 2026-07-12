@@ -326,3 +326,8 @@ C:\Dev\ITI\data\React\ETFARAG\api\obj\Debug\net10.0\refint\ReactProject.API.dll
 C:\Dev\ITI\data\React\ETFARAG\api\obj\Debug\net10.0\ReactProject.API.pdb
 C:\Dev\ITI\data\React\ETFARAG\api\obj\Debug\net10.0\ReactProject.API.genruntimeconfig.cache
 C:\Dev\ITI\data\React\ETFARAG\api\obj\Debug\net10.0\ref\ReactProject.API.dll
+C:\Dev\ITI\data\React\ETFARAG\api\bin\Debug\net10.0\Google.Apis.dll
+C:\Dev\ITI\data\React\ETFARAG\api\bin\Debug\net10.0\Google.Apis.Auth.dll
+C:\Dev\ITI\data\React\ETFARAG\api\bin\Debug\net10.0\Google.Apis.Core.dll
+C:\Dev\ITI\data\React\ETFARAG\api\bin\Debug\net10.0\System.Management.dll
+C:\Dev\ITI\data\React\ETFARAG\api\bin\Debug\net10.0\runtimes\win\lib\net7.0\System.Management.dll

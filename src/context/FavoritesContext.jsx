@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from './AuthContext'
 import {
   getFavorites,
@@ -12,6 +13,7 @@ const FavoritesContext = createContext(null)
 
 export function FavoritesProvider({ children }) {
   const { isAuthenticated } = useAuth()
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const [favoriteIds, setFavoriteIds] = useState(new Set())
@@ -48,12 +50,12 @@ export function FavoritesProvider({ children }) {
       try {
         await addFavorite(movieId)
         setFavoriteIds((prev) => new Set(prev).add(Number(movieId)))
-        toast.success('Added to favorites.')
+        toast.success(t('toasts.addedFavorite'))
       } catch {
-        toast.error('Failed to add favorite.')
+        toast.error(t('toasts.favoriteFailed'))
       }
     },
-    [isAuthenticated, navigate, location.pathname]
+    [isAuthenticated, navigate, location.pathname, t]
   )
 
   const remove = useCallback(
@@ -69,12 +71,12 @@ export function FavoritesProvider({ children }) {
           next.delete(Number(movieId))
           return next
         })
-        toast.success('Removed from favorites.')
+        toast.success(t('toasts.removedFavorite'))
       } catch {
-        toast.error('Failed to remove favorite.')
+        toast.error(t('toasts.favoriteFailed'))
       }
     },
-    [isAuthenticated, navigate, location.pathname]
+    [isAuthenticated, navigate, location.pathname, t]
   )
 
   const toggleFavorite = useCallback(

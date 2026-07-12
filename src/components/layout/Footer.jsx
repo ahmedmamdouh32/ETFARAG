@@ -1,6 +1,21 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 export default function Footer() {
+  const { t } = useTranslation()
+
+  const quickLinks = [
+    { to: '/', label: t('nav.home') },
+    { to: '/search', label: t('nav.search') },
+    { to: '/favorites', label: t('nav.favorites') },
+  ]
+
+  const accountLinks = [
+    { to: '/profile', label: t('nav.profile') },
+    { to: '/login', label: t('nav.login') },
+    { to: '/register', label: t('nav.register') },
+  ]
+
   return (
     <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -9,18 +24,14 @@ export default function Footer() {
             <div className="flex items-center gap-2 mb-4">
               <img src="/logo.webp" alt="ETFARAG" className="h-8 w-auto" />
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Browse, search, and save your favorite movies with ETFARAG.
-            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{t('footer.description')}</p>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Links</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              {t('footer.quickLinks')}
+            </h3>
             <ul className="space-y-2">
-              {[
-                { to: '/', label: 'Home' },
-                { to: '/search', label: 'Search' },
-                { to: '/favorites', label: 'Favorites' },
-              ].map((link) => (
+              {quickLinks.map((link) => (
                 <li key={link.to}>
                   <Link
                     to={link.to}
@@ -33,13 +44,11 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Account</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              {t('footer.account')}
+            </h3>
             <ul className="space-y-2">
-              {[
-                { to: '/profile', label: 'Profile' },
-                { to: '/login', label: 'Login' },
-                { to: '/register', label: 'Register' },
-              ].map((link) => (
+              {accountLinks.map((link) => (
                 <li key={link.to}>
                   <Link
                     to={link.to}
@@ -54,7 +63,7 @@ export default function Footer() {
         </div>
         <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 text-center">
           <p className="text-sm text-gray-500 dark:text-gray-500">
-            &copy; {new Date().getFullYear()} ETFARAG. All rights reserved.
+            &copy; {new Date().getFullYear()} ETFARAG. {t('footer.rights')}
           </p>
         </div>
       </div>

@@ -2,7 +2,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ReactProject.API.DTOs;
@@ -16,15 +18,18 @@ public class AuthService : IAuthService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IOptions<JwtSettings> _jwtSettings;
     private readonly IMapper _mapper;
+    private readonly IConfiguration _configuration;
 
     public AuthService(
         UserManager<ApplicationUser> userManager,
         IOptions<JwtSettings> jwtSettings,
-        IMapper mapper)
+        IMapper mapper,
+        IConfiguration configuration)
     {
         _userManager = userManager;
         _jwtSettings = jwtSettings;
         _mapper = mapper;
+        _configuration = configuration;
     }
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
@@ -128,6 +133,66 @@ public class AuthService : IAuthService
             var errors = string.Join("; ", result.Errors.Select(e => e.Description));
             throw new InvalidOperationException(errors);
         }
+    }
+
+    public async Task<AuthResponse> GoogleLoginAsync(GoogleAuthRequest request)
+    {
+        var clientId = _configuration["GoogleAuth:ClientId"];
+        if (string.IsNullOrWhiteSpace(clientId))
+        {
+            throw new InvalidOperationException("Google authentication is not configured.");
+        }
+
+        GoogleJsonWebSignature.Payload payload;
+        try
+        {
+            payload = await GoogleJsonWebSignature.ValidateAsync(
+                request.IdToken,
+                new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new[] { clientId }
+                }
+            );
+        }
+        catch
+        {
+            throw new UnauthorizedAccessException("Invalid Google token.");
+        }
+
+        if (string.IsNullOrWhiteSpace(payload.Email))
+        {
+            throw new UnauthorizedAccessException("Google account email is not available.");
+        }
+
+        var user = await _userManager.FindByEmailAsync(payload.Email);
+        if (user == null)
+        {
+            user = new ApplicationUser
+            {
+                Email = payload.Email,
+                UserName = payload.Email,
+                FullName = string.IsNullOrWhiteSpace(payload.Name) ? payload.Email : payload.Name,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var createResult = await _userManager.CreateAsync(user);
+            if (!createResult.Succeeded)
+            {
+                var errors = string.Join("; ", createResult.Errors.Select(e => e.Description));
+                throw new InvalidOperationException(errors);
+            }
+        }
+
+        var token = await GenerateJwtToken(user);
+
+        return new AuthResponse
+        {
+            Token = token,
+            Email = user.Email!,
+            FullName = user.FullName,
+            Expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.Value.ExpirationInMinutes)
+        };
     }
 
     private async Task<string> GenerateJwtToken(ApplicationUser user)

@@ -1,6 +1,10 @@
+import { useTranslation } from 'react-i18next'
+
 export default function CategoryFilter({ categories, selected, onSelect }) {
+  const { t } = useTranslation()
+
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by category">
+    <div className="flex flex-wrap gap-2" role="group" aria-label={t('common.filterByCategory')}>
       <button
         type="button"
         onClick={() => onSelect('')}
@@ -11,7 +15,7 @@ export default function CategoryFilter({ categories, selected, onSelect }) {
         }`}
         aria-pressed={selected === ''}
       >
-        All
+        {t('common.all')}
       </button>
       {categories.map((cat) => (
         <button

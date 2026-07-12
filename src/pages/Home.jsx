@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, createSearchParams, useLocation } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { useMovies } from '@/hooks/useMovies'
 import { getRecentlyViewed } from '@/lib/recentlyViewed'
 import MovieGrid from '@/components/movies/MovieGrid'
@@ -12,6 +13,7 @@ import EmptyState from '@/components/movies/EmptyState'
 import ErrorState from '@/components/movies/ErrorState'
 
 export default function Home() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const [recentMovies, setRecentMovies] = useState([])
@@ -50,19 +52,19 @@ export default function Home() {
   return (
     <>
       <Helmet>
-        <title>Home | ETFARAG</title>
+        <title>{t('home.title')} | ETFARAG</title>
       </Helmet>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Movies</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('home.movies')}</h1>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <form onSubmit={handleSearch}>
               <input
                 name="home-search"
                 type="text"
-                placeholder="Search movies..."
+                placeholder={t('home.searchPlaceholder')}
                 className="px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64"
-                aria-label="Search movies"
+                aria-label={t('home.searchPlaceholder')}
               />
             </form>
             <SortDropdown value={sortBy} onChange={setSortBy} />
@@ -71,7 +73,7 @@ export default function Home() {
 
         {recentMovies.length > 0 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Recently Viewed</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('home.recentlyViewed')}</h2>
             <MovieGrid movies={recentMovies} />
           </div>
         )}

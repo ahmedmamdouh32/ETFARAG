@@ -2,6 +2,17 @@ import { createContext, useContext, useState, useEffect } from 'react'
 
 const ThemeContext = createContext()
 
+function applyTheme(theme) {
+  const html = document.documentElement
+  if (theme === 'dark') {
+    html.classList.add('dark')
+    html.style.colorScheme = 'dark'
+  } else {
+    html.classList.remove('dark')
+    html.style.colorScheme = 'light'
+  }
+}
+
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'light'
@@ -9,12 +20,7 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     localStorage.setItem('theme', theme)
-    const html = document.documentElement
-    if (theme === 'dark') {
-      html.classList.add('dark')
-    } else {
-      html.classList.remove('dark')
-    }
+    applyTheme(theme)
   }, [theme])
 
   const toggleTheme = () => {

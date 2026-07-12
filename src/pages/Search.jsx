@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { useSearch } from '@/hooks/useSearch'
 import MovieGrid from '@/components/movies/MovieGrid'
 import Pagination from '@/components/movies/Pagination'
@@ -7,6 +8,7 @@ import EmptyState from '@/components/movies/EmptyState'
 import ErrorState from '@/components/movies/ErrorState'
 
 export default function Search() {
+  const { t } = useTranslation()
   const {
     movies,
     totalPages,
@@ -20,7 +22,9 @@ export default function Search() {
     retry,
   } = useSearch()
 
-  const pageTitle = query ? `Search: ${query} | ETFARAG` : 'Search | ETFARAG'
+  const pageTitle = query
+    ? `${t('search.pageTitle', { query })} | ETFARAG`
+    : `${t('search.title')} | ETFARAG`
 
   return (
     <>
@@ -28,15 +32,15 @@ export default function Search() {
         <title>{pageTitle}</title>
       </Helmet>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Search</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('search.title')}</h1>
         <div className="max-w-xl">
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Search movies..."
+            placeholder={t('search.placeholder')}
             className="w-full px-4 py-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label="Search movies"
+            aria-label={t('search.placeholder')}
           />
         </div>
 
@@ -45,7 +49,7 @@ export default function Search() {
         {!loading && error && <ErrorState message={error} onRetry={retry} />}
 
         {!loading && !error && query && movies.length === 0 && (
-          <EmptyState message="No movies matched your search." />
+          <EmptyState message={t('search.empty')} />
         )}
 
         {!loading && !error && movies.length > 0 && (
@@ -75,10 +79,10 @@ export default function Search() {
               />
             </svg>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-              Search for movies
+              {t('search.promptTitle')}
             </h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Type above to find your favorite movies.
+              {t('search.promptText')}
             </p>
           </div>
         )}

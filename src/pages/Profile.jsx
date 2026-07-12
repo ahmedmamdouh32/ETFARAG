@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
 import { useAuth } from '@/context/AuthContext'
 import { Button } from '@/components/ui/button'
@@ -18,6 +19,7 @@ function getInitials(name) {
 }
 
 export default function Profile() {
+  const { t } = useTranslation()
   const { user, logout, updateProfile, changePassword } = useAuth()
   const navigate = useNavigate()
 
@@ -39,7 +41,7 @@ export default function Profile() {
   async function handleProfileSubmit(e) {
     e.preventDefault()
     if (!fullName.trim()) {
-      toast.error('Full name is required.')
+      toast.error(t('profile.fullNameRequired'))
       return
     }
 
@@ -47,7 +49,7 @@ export default function Profile() {
     try {
       await updateProfile(fullName.trim())
     } catch (err) {
-      toast.error(err?.message || 'Failed to update profile.')
+      toast.error(err?.message || t('profile.fullNameRequired'))
     } finally {
       setProfileLoading(false)
     }
@@ -56,15 +58,15 @@ export default function Profile() {
   async function handlePasswordSubmit(e) {
     e.preventDefault()
     if (!passwordForm.currentPassword || !passwordForm.newPassword) {
-      toast.error('Please fill in all password fields.')
+      toast.error(t('profile.passwordFieldsRequired'))
       return
     }
     if (passwordForm.newPassword.length < 6) {
-      toast.error('New password must be at least 6 characters.')
+      toast.error(t('profile.passwordMinLength'))
       return
     }
     if (passwordForm.newPassword !== passwordForm.confirmNewPassword) {
-      toast.error('Passwords do not match.')
+      toast.error(t('profile.passwordMismatch'))
       return
     }
 
@@ -77,7 +79,7 @@ export default function Profile() {
       )
       setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' })
     } catch (err) {
-      toast.error(err?.message || 'Failed to change password.')
+      toast.error(err?.message || t('profile.passwordMismatch'))
     } finally {
       setPasswordLoading(false)
     }
@@ -87,15 +89,13 @@ export default function Profile() {
     return (
       <>
         <Helmet>
-          <title>Profile | ETFARAG</title>
+          <title>{t('profile.title')} | ETFARAG</title>
         </Helmet>
         <div className="max-w-lg mx-auto px-4 py-12 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Profile</h1>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">
-            Could not load your profile. Please try logging in again.
-          </p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('profile.title')}</h1>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">{t('profile.loadError')}</p>
           <Button className="mt-6" onClick={() => navigate('/login')}>
-            Go to Login
+            {t('profile.goToLogin')}
           </Button>
         </div>
       </>
@@ -105,7 +105,7 @@ export default function Profile() {
   return (
     <>
       <Helmet>
-        <title>Profile | ETFARAG</title>
+        <title>{t('profile.title')} | ETFARAG</title>
       </Helmet>
       <div className="max-w-lg mx-auto px-4 sm:px-6 py-10 sm:py-12 space-y-6">
         <Card>
@@ -121,71 +121,71 @@ export default function Profile() {
           <CardContent className="space-y-4">
             <div className="rounded-md border border-gray-200 dark:border-gray-700 p-4 space-y-3">
               <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Account Information
+                {t('profile.accountInfo')}
               </h2>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('profile.email')}</p>
                 <p className="text-gray-900 dark:text-white break-all">{user.email}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Account Status</p>
-                <p className="text-green-600 dark:text-green-400">Active</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('profile.status')}</p>
+                <p className="text-green-600 dark:text-green-400">{t('profile.active')}</p>
               </div>
             </div>
 
             <form onSubmit={handleProfileSubmit} className="space-y-3">
               <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Edit Profile
+                {t('profile.editProfile')}
               </h2>
               <Input
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Full Name"
-                aria-label="Full name"
+                placeholder={t('profile.fullName')}
+                aria-label={t('profile.fullName')}
               />
               <Button type="submit" className="w-full" disabled={profileLoading}>
-                {profileLoading ? 'Saving...' : 'Save Profile'}
+                {profileLoading ? t('profile.saving') : t('profile.saveProfile')}
               </Button>
             </form>
 
             <form onSubmit={handlePasswordSubmit} className="space-y-3">
               <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Change Password
+                {t('profile.changePassword')}
               </h2>
               <Input
                 type="password"
-                placeholder="Current Password"
+                placeholder={t('profile.currentPassword')}
                 value={passwordForm.currentPassword}
                 onChange={(e) =>
                   setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))
                 }
-                aria-label="Current password"
+                aria-label={t('profile.currentPassword')}
               />
               <Input
                 type="password"
-                placeholder="New Password"
+                placeholder={t('profile.newPassword')}
                 value={passwordForm.newPassword}
                 onChange={(e) =>
                   setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))
                 }
-                aria-label="New password"
+                aria-label={t('profile.newPassword')}
               />
               <Input
                 type="password"
-                placeholder="Confirm New Password"
+                placeholder={t('profile.confirmPassword')}
                 value={passwordForm.confirmNewPassword}
                 onChange={(e) =>
                   setPasswordForm((prev) => ({ ...prev, confirmNewPassword: e.target.value }))
                 }
-                aria-label="Confirm new password"
+                aria-label={t('profile.confirmPassword')}
               />
               <Button type="submit" className="w-full" disabled={passwordLoading}>
-                {passwordLoading ? 'Updating...' : 'Change Password'}
+                {passwordLoading ? t('profile.updating') : t('profile.updatePassword')}
               </Button>
             </form>
 
             <Button variant="destructive" className="w-full" onClick={handleLogout}>
-              Logout
+              {t('profile.logout')}
             </Button>
           </CardContent>
         </Card>
