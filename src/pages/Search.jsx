@@ -20,7 +20,7 @@ export default function Search() {
     retry,
   } = useSearch()
 
-  const pageTitle = query ? `Search - ${query}` : 'Search'
+  const pageTitle = query ? `Search: ${query} | ETFARAG` : 'Search | ETFARAG'
 
   return (
     <>
@@ -28,6 +28,7 @@ export default function Search() {
         <title>{pageTitle}</title>
       </Helmet>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Search</h1>
         <div className="max-w-xl">
           <input
             type="text"

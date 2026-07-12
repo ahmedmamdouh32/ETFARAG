@@ -17,8 +17,9 @@ export default function ErrorState({ message, onRetry }) {
       <h3 className="text-lg font-medium text-gray-900 dark:text-white">Something went wrong</h3>
       <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{message}</p>
       <button
+        type="button"
         onClick={onRetry}
-        className="mt-4 px-4 py-2 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+        className="mt-4 px-4 py-2 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         aria-label="Retry loading movies"
       >
         Try Again

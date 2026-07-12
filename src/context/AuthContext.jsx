@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { loginUser, registerUser } from '@/services/authService'
+import api from '@/api/axios'
+import { loginUser, registerUser, updateProfile as updateProfileApi, changePassword as changePasswordApi } from '@/services/authService'
 
 const AuthContext = createContext(null)
 
@@ -17,6 +19,14 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(null)
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
+
+  const clearSession = useCallback(() => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setToken(null)
+    setUser(null)
+  }, [])
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token')
@@ -24,8 +34,7 @@ export function AuthProvider({ children }) {
 
     if (storedToken && storedUser) {
       if (isTokenExpired(storedToken)) {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
+        clearSession()
         toast.error('Session expired. Please log in again.')
       } else {
         setToken(storedToken)
@@ -33,7 +42,19 @@ export function AuthProvider({ children }) {
       }
     }
     setLoading(false)
-  }, [])
+  }, [clearSession])
+
+  useEffect(() => {
+    api.onUnauthorized = (message) => {
+      clearSession()
+      toast.error(message || 'Session expired. Please log in again.')
+      navigate('/login', { replace: true })
+    }
+
+    return () => {
+      api.onUnauthorized = null
+    }
+  }, [clearSession, navigate])
 
   const login = useCallback(async (email, password) => {
     const data = await loginUser(email, password)
@@ -56,11 +77,25 @@ export function AuthProvider({ children }) {
   }, [])
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    setToken(null)
-    setUser(null)
+    clearSession()
     toast.success('Logged out successfully.')
+  }, [clearSession])
+
+  const updateProfile = useCallback(async (fullName) => {
+    const data = await updateProfileApi(fullName)
+    const userData = { email: data.email, fullName: data.fullName }
+
+    localStorage.setItem('user', JSON.stringify(userData))
+    setUser(userData)
+
+    toast.success('Profile updated successfully.')
+    return data
+  }, [])
+
+  const changePassword = useCallback(async (currentPassword, newPassword, confirmNewPassword) => {
+    const data = await changePasswordApi(currentPassword, newPassword, confirmNewPassword)
+    toast.success(data.message || 'Password changed successfully.')
+    return data
   }, [])
 
   return (
@@ -73,6 +108,8 @@ export function AuthProvider({ children }) {
         login,
         register,
         logout,
+        updateProfile,
+        changePassword,
       }}
     >
       {children}

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useAuth } from './AuthContext'
 import {
@@ -13,6 +13,7 @@ const FavoritesContext = createContext(null)
 export function FavoritesProvider({ children }) {
   const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [favoriteIds, setFavoriteIds] = useState(new Set())
 
   const refreshFavorites = useCallback(async () => {
@@ -41,7 +42,7 @@ export function FavoritesProvider({ children }) {
   const add = useCallback(
     async (movieId) => {
       if (!isAuthenticated) {
-        navigate('/login')
+        navigate('/login', { state: { from: location.pathname } })
         return
       }
       try {
@@ -52,13 +53,13 @@ export function FavoritesProvider({ children }) {
         toast.error('Failed to add favorite.')
       }
     },
-    [isAuthenticated, navigate]
+    [isAuthenticated, navigate, location.pathname]
   )
 
   const remove = useCallback(
     async (movieId) => {
       if (!isAuthenticated) {
-        navigate('/login')
+        navigate('/login', { state: { from: location.pathname } })
         return
       }
       try {
@@ -73,7 +74,7 @@ export function FavoritesProvider({ children }) {
         toast.error('Failed to remove favorite.')
       }
     },
-    [isAuthenticated, navigate]
+    [isAuthenticated, navigate, location.pathname]
   )
 
   const toggleFavorite = useCallback(

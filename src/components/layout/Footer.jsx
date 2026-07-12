@@ -10,7 +10,7 @@ export default function Footer() {
               <img src="/logo.webp" alt="ETFARAG" className="h-8 w-auto" />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Your go-to platform for discovering and exploring amazing content.
+              Browse, search, and save your favorite movies with ETFARAG.
             </p>
           </div>
           <div>

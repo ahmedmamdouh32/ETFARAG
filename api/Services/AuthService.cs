@@ -86,6 +86,50 @@ public class AuthService : IAuthService
         };
     }
 
+    public async Task<UserProfileResponse> UpdateProfileAsync(string userId, UpdateProfileRequest request)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            throw new KeyNotFoundException("User not found.");
+        }
+
+        user.FullName = request.FullName.Trim();
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+            throw new InvalidOperationException(errors);
+        }
+
+        return new UserProfileResponse
+        {
+            Email = user.Email!,
+            FullName = user.FullName
+        };
+    }
+
+    public async Task ChangePasswordAsync(string userId, ChangePasswordRequest request)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            throw new KeyNotFoundException("User not found.");
+        }
+
+        var result = await _userManager.ChangePasswordAsync(
+            user,
+            request.CurrentPassword,
+            request.NewPassword
+        );
+
+        if (!result.Succeeded)
+        {
+            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+            throw new InvalidOperationException(errors);
+        }
+    }
+
     private async Task<string> GenerateJwtToken(ApplicationUser user)
     {
         var jwtSettings = _jwtSettings.Value;

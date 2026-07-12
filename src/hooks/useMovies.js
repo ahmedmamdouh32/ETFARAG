@@ -18,6 +18,7 @@ export function useMovies() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [movies, setMovies] = useState([])
   const [categories, setCategories] = useState([])
+  const [categoriesError, setCategoriesError] = useState(null)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -28,8 +29,13 @@ export function useMovies() {
 
   useEffect(() => {
     getCategories()
-      .then((data) => setCategories(data || []))
-      .catch(() => {})
+      .then((data) => {
+        setCategories(data || [])
+        setCategoriesError(null)
+      })
+      .catch((err) => {
+        setCategoriesError(err.message || 'Failed to load categories.')
+      })
   }, [])
 
   const fetchMovies = useCallback(async () => {
@@ -87,6 +93,7 @@ export function useMovies() {
   return {
     movies,
     categories,
+    categoriesError,
     totalPages,
     currentPage,
     sortBy,

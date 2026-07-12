@@ -1,10 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useFavorites } from '@/context/FavoritesContext'
-import { useAuth } from '@/context/AuthContext'
 
 export default function MovieCard({ movie }) {
   const { isFavorite, toggleFavorite } = useFavorites()
-  const { isAuthenticated } = useAuth()
   const favorited = isFavorite(movie.id)
 
   const overview =
@@ -15,10 +13,6 @@ export default function MovieCard({ movie }) {
   function handleFavoriteClick(e) {
     e.preventDefault()
     e.stopPropagation()
-    if (!isAuthenticated) {
-      toggleFavorite(movie.id)
-      return
-    }
     toggleFavorite(movie.id)
   }
 
@@ -31,7 +25,7 @@ export default function MovieCard({ movie }) {
         <div className="aspect-[2/3] bg-gray-200 dark:bg-gray-800">
           {movie.poster_path ? (
             <img
-              src={"https://image.tmdb.org/t/p/original/" + movie.poster_path}
+              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
               alt={`${movie.title} poster`}
               className="w-full h-full object-cover"
               loading="lazy"
@@ -79,8 +73,9 @@ export default function MovieCard({ movie }) {
         </div>
       </Link>
       <button
+        type="button"
         onClick={handleFavoriteClick}
-        className="absolute top-2 right-2 p-1.5 rounded-full bg-black/50 hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+        className="absolute top-2 right-2 p-1.5 rounded-full bg-black/50 hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
         aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
       >
         <svg

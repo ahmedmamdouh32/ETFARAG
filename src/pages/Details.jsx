@@ -1,10 +1,12 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useMovieDetails } from '@/hooks/useMovieDetails'
 import { useFavorites } from '@/context/FavoritesContext'
 import { useAuth } from '@/context/AuthContext'
 import MovieCard from '@/components/movies/MovieCard'
-import LoadingSkeleton from '@/components/movies/LoadingSkeleton'
+import ErrorState from '@/components/movies/ErrorState'
+import { addRecentlyViewed } from '@/lib/recentlyViewed'
 
 function DetailsSkeleton() {
   return (
@@ -28,16 +30,23 @@ function DetailsSkeleton() {
 export default function Details() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { isFavorite, toggleFavorite } = useFavorites()
   const { isAuthenticated } = useAuth()
-  const { movie, recommendations, trailer, loading, error, retry } =
+  const { movie, recommendations, similarMovies, credits, trailer, loading, error, retry } =
     useMovieDetails(id)
+
+  useEffect(() => {
+    if (movie) {
+      addRecentlyViewed(movie)
+    }
+  }, [movie])
 
   if (loading) {
     return (
       <>
         <Helmet>
-          <title>Loading...</title>
+          <title>Loading... | ETFARAG</title>
         </Helmet>
         <DetailsSkeleton />
       </>
@@ -48,35 +57,19 @@ export default function Details() {
     return (
       <>
         <Helmet>
-          <title>Error</title>
+          <title>Error | ETFARAG</title>
         </Helmet>
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <svg
-            className="w-16 h-16 text-red-300 dark:text-red-600 mb-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-            />
-          </svg>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-            Something went wrong
-          </h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {error}
-          </p>
-          <button
-            onClick={retry}
-            className="mt-4 px-4 py-2 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-            aria-label="Retry loading movie details"
-          >
-            Try Again
-          </button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <ErrorState message={error} onRetry={retry} />
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+            >
+              Back to Home
+            </button>
+          </div>
         </div>
       </>
     )
@@ -85,7 +78,7 @@ export default function Details() {
   if (!movie) return null
 
   const backdropUrl = movie.backdrop_path
-    ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+    ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
     : null
   const posterUrl = movie.poster_path
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
@@ -94,18 +87,23 @@ export default function Details() {
     ? `https://www.youtube.com/embed/${trailer.key}`
     : null
 
+  const directors = credits?.crew?.filter((person) => person.job === 'Director') || []
+  const cast = credits?.cast?.slice(0, 10) || []
+
   return (
     <>
       <Helmet>
-        <title>{movie.title}</title>
+        <title>{movie.title} | ETFARAG</title>
+        <meta name="description" content={movie.overview?.slice(0, 160) || `Details for ${movie.title}`} />
       </Helmet>
 
       {backdropUrl ? (
         <div className="relative h-[300px] sm:h-[400px] lg:h-[500px] overflow-hidden">
           <img
             src={backdropUrl}
-            alt={`${movie.title} backdrop`}
+            alt=""
             className="w-full h-full object-cover"
+            loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent" />
         </div>
@@ -174,9 +172,10 @@ export default function Details() {
             )}
 
             <button
+              type="button"
               onClick={() => {
                 if (!isAuthenticated) {
-                  navigate('/login')
+                  navigate('/login', { state: { from: location.pathname } })
                   return
                 }
                 toggleFavorite(movie.id)
@@ -247,6 +246,91 @@ export default function Details() {
         ) : (
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-8 text-center">
             <p className="text-gray-500 dark:text-gray-400">No trailer available.</p>
+          </div>
+        )}
+
+        {cast.length > 0 && (
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Cast
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {cast.map((person) => (
+                <div
+                  key={person.id}
+                  className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden text-center"
+                >
+                  {person.profile_path ? (
+                    <img
+                      src={`https://image.tmdb.org/t/p/w185${person.profile_path}`}
+                      alt={person.name}
+                      className="w-full aspect-[2/3] object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full aspect-[2/3] bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-600 text-xs">
+                      No Photo
+                    </div>
+                  )}
+                  <div className="p-2">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      {person.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {person.character}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {directors.length > 0 && (
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Crew
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              {directors.map((person) => (
+                <div
+                  key={person.id}
+                  className="flex items-center gap-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
+                >
+                  {person.profile_path ? (
+                    <img
+                      src={`https://image.tmdb.org/t/p/w92${person.profile_path}`}
+                      alt={person.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-400 text-xs">
+                      ?
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {person.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{person.job}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {similarMovies.length > 0 && (
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Similar Movies
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {similarMovies.slice(0, 10).map((item) => (
+                <MovieCard key={item.id} movie={item} />
+              ))}
+            </div>
           </div>
         )}
 

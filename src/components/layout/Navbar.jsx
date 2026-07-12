@@ -35,11 +35,11 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link to="/">
-            <img src="/logo.webp" alt="ETFARAG" className="h-10 w-auto" />
+          <Link to="/" aria-label="ETFARAG home">
+            <img src="/logo.webp" alt="" className="h-10 w-auto" />
           </Link>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -87,6 +87,7 @@ export default function Navbar() {
                 <button
                   onClick={handleLogout}
                   className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                  aria-label="Log out"
                 >
                   Logout
                 </button>
@@ -113,6 +114,8 @@ export default function Navbar() {
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
             aria-label="Toggle menu"
+            aria-expanded={isOpen}
+            aria-controls="mobile-menu"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               {isOpen ? (
@@ -126,7 +129,7 @@ export default function Navbar() {
       </div>
 
       {isOpen && (
-        <div className="md:hidden border-t border-gray-200 dark:border-gray-700">
+        <div id="mobile-menu" className="md:hidden border-t border-gray-200 dark:border-gray-700">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navLinks.map((link) => (
               <NavLink
@@ -176,6 +179,7 @@ export default function Navbar() {
               <button
                 onClick={handleLogout}
                 className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
+                aria-label="Log out"
               >
                 Logout
               </button>
@@ -183,6 +187,7 @@ export default function Navbar() {
             <button
               onClick={toggleTheme}
               className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+              aria-label="Toggle theme"
             >
               {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
             </button>

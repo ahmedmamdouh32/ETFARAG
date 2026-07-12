@@ -52,3 +52,13 @@ export async function getMedia(id) {
   const { data } = await tmdbApi.get(`/movie/${id}/videos`)
   return data
 }
+
+export async function getCredits(id) {
+  const { data } = await tmdbApi.get(`/movie/${id}/credits`)
+  return data
+}
+
+export async function getSimilarMovies(id) {
+  const { data } = await tmdbApi.get(`/movie/${id}/similar`)
+  return data
+}

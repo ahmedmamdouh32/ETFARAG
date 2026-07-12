@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { toast } from 'react-toastify'
 import { useAuth } from '@/context/AuthContext'
@@ -16,8 +16,20 @@ export default function Register() {
   })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
-  const { register } = useAuth()
+  const { register, isAuthenticated, loading: authLoading } = useAuth()
   const navigate = useNavigate()
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center py-20" role="status" aria-label="Loading">
+        <div className="w-10 h-10 border-4 border-gray-300 dark:border-gray-600 border-t-blue-600 rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />
+  }
 
   function validate() {
     const errs = {}
@@ -40,7 +52,7 @@ export default function Register() {
       await register(form.fullName.trim(), form.email, form.password, form.confirmPassword)
       navigate('/login')
     } catch (err) {
-      const message = err?.response?.data?.message || 'Registration failed. Please try again.'
+      const message = err?.message || 'Registration failed. Please try again.'
       toast.error(message)
     } finally {
       setLoading(false)
@@ -54,7 +66,7 @@ export default function Register() {
   return (
     <>
       <Helmet>
-        <title>Register</title>
+        <title>Register | ETFARAG</title>
       </Helmet>
       <div className="flex items-center justify-center py-12 px-4">
         <Card className="w-full max-w-md">
@@ -70,8 +82,15 @@ export default function Register() {
                   placeholder="Full Name"
                   value={form.fullName}
                   onChange={handleChange}
+                  aria-label="Full name"
+                  aria-invalid={!!errors.fullName}
+                  aria-describedby={errors.fullName ? 'register-name-error' : undefined}
                 />
-                {errors.fullName && <p className="text-sm text-red-500 mt-1">{errors.fullName}</p>}
+                {errors.fullName && (
+                  <p id="register-name-error" role="alert" className="text-sm text-red-500 mt-1">
+                    {errors.fullName}
+                  </p>
+                )}
               </div>
               <div>
                 <Input
@@ -80,8 +99,15 @@ export default function Register() {
                   placeholder="Email"
                   value={form.email}
                   onChange={handleChange}
+                  aria-label="Email"
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? 'register-email-error' : undefined}
                 />
-                {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
+                {errors.email && (
+                  <p id="register-email-error" role="alert" className="text-sm text-red-500 mt-1">
+                    {errors.email}
+                  </p>
+                )}
               </div>
               <div>
                 <Input
@@ -90,8 +116,15 @@ export default function Register() {
                   placeholder="Password"
                   value={form.password}
                   onChange={handleChange}
+                  aria-label="Password"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'register-password-error' : undefined}
                 />
-                {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password}</p>}
+                {errors.password && (
+                  <p id="register-password-error" role="alert" className="text-sm text-red-500 mt-1">
+                    {errors.password}
+                  </p>
+                )}
               </div>
               <div>
                 <Input
@@ -100,9 +133,14 @@ export default function Register() {
                   placeholder="Confirm Password"
                   value={form.confirmPassword}
                   onChange={handleChange}
+                  aria-label="Confirm password"
+                  aria-invalid={!!errors.confirmPassword}
+                  aria-describedby={errors.confirmPassword ? 'register-confirm-error' : undefined}
                 />
                 {errors.confirmPassword && (
-                  <p className="text-sm text-red-500 mt-1">{errors.confirmPassword}</p>
+                  <p id="register-confirm-error" role="alert" className="text-sm text-red-500 mt-1">
+                    {errors.confirmPassword}
+                  </p>
                 )}
               </div>
               <Button type="submit" className="w-full" disabled={loading}>

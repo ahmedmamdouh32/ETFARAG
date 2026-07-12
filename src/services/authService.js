@@ -14,3 +14,17 @@ export async function registerUser(fullName, email, password, confirmPassword) {
   })
   return response.data
 }
+
+export async function updateProfile(fullName) {
+  const response = await api.put('/api/auth/profile', { fullName })
+  return response.data
+}
+
+export async function changePassword(currentPassword, newPassword, confirmNewPassword) {
+  const response = await api.post('/api/auth/change-password', {
+    currentPassword,
+    newPassword,
+    confirmNewPassword,
+  })
+  return response.data
+}
